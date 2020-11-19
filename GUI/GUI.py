@@ -1,6 +1,6 @@
 # -*- coding:UTF-8 -*-
 
-import os, shutil, time
+import os, shutil, time, datetime
 from tkinter import *
 from tkinter import ttk, filedialog  #, dialog
 
@@ -56,12 +56,12 @@ class App:
         # Layer 3
         f_panel_1 = Frame(f_panels)
         f_panel_2 = Frame(f_panels)
-        f_panel_1.pack(side=TOP, pady=10)
-        f_panel_2.pack(side=BOTTOM, pady=10)
+        f_panel_1.pack(side=TOP, pady=3)
+        f_panel_2.pack(side=BOTTOM, pady=3)
         f_console_1 = Frame(f_consoles)
         f_console_2 = Frame(f_consoles)
-        f_console_1.pack(side=TOP, pady=10)
-        f_console_2.pack(side=BOTTOM, pady=10)
+        f_console_1.pack(side=TOP, pady=3)
+        f_console_2.pack(side=BOTTOM, pady=3)
 
         # 设置Widget
         # Panel 1 Frame
@@ -90,45 +90,52 @@ class App:
         # 不能将grid写在同一行，否则会在给名字赋值时，将Entry类型理解成NoneType，所有属性都无法识别
         self.cb_sfx_dev = Checkbutton(f_top, text='Develop (Default)', variable=self.v_sfx_dev, command=self.check)
         self.cb_sfx_dev.grid(row=0, column=4, padx=10)
-        self.cb_sfx_stub = Checkbutton(f_top, text='STUBS             ', variable=self.v_sfx_stub, command=self.check)
-        self.cb_sfx_stub.grid(row=1, column=4)
-        self.cb_sfx_sr = Checkbutton(f_top, text='Series Build      ', variable=self.v_sfx_sr, command=self.check)
-        self.cb_sfx_sr.grid(row=2, column=4)
-        self.cb_sfx_flt = Checkbutton(f_top, text='Fault Injection    ', variable=self.v_sfx_flt, command=self.check)
-        self.cb_sfx_flt.grid(row=3, column=4)
-        
-        self.cb_a2l_dev = Checkbutton(f_top, text='A2L on CAN', variable=self.v_a2l_dev, command=self.check)
-        self.cb_a2l_dev.grid(row=0, column=5, padx=10)
-        self.cb_a2l_stub = Checkbutton(f_top, text='A2L on CAN', variable=self.v_a2l_stub, command=self.check)
-        self.cb_a2l_stub.grid(row=1, column=5)
-        # self.cb_a2l_sr = Checkbutton(f_top, text='A2L on CAN', variable=self.v_a2l_sr, command=self.check)
-        # self.cb_a2l_sr.grid(row=2, column=5)
-        # self.cb_a2l_sr.config(state='disabled')  # 默认disable这个属性
-        self.cb_a2l_flt = Checkbutton(f_top, text='A2L on CAN', variable=self.v_a2l_flt, command=self.check)
-        self.cb_a2l_flt.grid(row=3, column=5)
         '''
         
         # Console Frame
         Label(f_console_1, text='Console', width=7).grid(row=0, column=0)
-        self.t_console = Text(f_console_1, height=20, width=60)
-        self.t_console.grid(row=0, column=1, padx=10, pady=5)
-        Label(f_console_1, text='Input  ', width=7).grid(row=1, column=0)
-        Entry(f_console_1, width=60, textvariable=self.v_console_input).grid(row=1, column=1, padx=10, pady=5)
         
-        Button(f_console_2, text='   Send   ', width=10, command=self.send_msg).grid(row=0, column=0)
-        Button(f_console_2, text='  Clean   ', width=10, command=self.clean_msg).grid(row=0, column=1, padx=15, pady=5)
-        Button(f_console_2, text='Save As...', width=10, command=self.save_msg).grid(row=0, column=2)
+        f_ts_console = Frame(f_console_1)
+        f_ts_console.grid(row=0, column=1, padx=10, pady=5)
+        scroll_console = Scrollbar(f_ts_console)  # 滚动条
+        scroll_console.pack(side=RIGHT, fill=Y)  # side是滚动条放置的位置，上下左右。fill是将滚动条沿着y轴填充与否
+        self.t_console = Text(f_ts_console, height=20, width=60)
+        self.t_console.pack(side=LEFT, fill=Y)  # 将文本框填充进窗口的左侧
+        scroll_console.config(command=self.t_console.yview) # 将文本框关联到滚动条上，滚动条滑动，文本框跟随滑动
+        self.t_console.config(yscrollcommand=scroll_console.set) # 将滚动条关联到文本框
+        
+        Label(f_console_1, text='Input  ', width=7).grid(row=1, column=0)
+        Entry(f_console_1, width=62, textvariable=self.v_console_input).grid(row=1, column=1, padx=10, pady=3)
+        
+        Label(f_console_2, text='  ', width=7).grid(row=0, column=0)  # 占位用
+        Button(f_console_2, text='   Send   ', width=12, command=self.send_msg).grid(row=0, column=1)
+        Button(f_console_2, text='  Clean   ', width=12, command=self.clean_msg).grid(row=0, column=2, padx=45)
+        Button(f_console_2, text='Save As...', width=12, command=self.save_msg).grid(row=0, column=3)
 
         # Log Frame
-        Label(f_log, text='Log', width=100, anchor=W).grid(row=0, column=0)
-        self.t_log = Text(f_log, height=8, width=100)
-        self.t_log.grid(row=1, column=0, padx=10, pady=5)
-        Label(f_log, text=Authorship, width=100, anchor=E).grid(row=2, column=0)
-
+        Label(f_log, text='Log', width=4, anchor=W).grid(row=0, column=0)
+        
+        f_ts_log = Frame(f_log)
+        f_ts_log.grid(row=0, column=1, padx=3, pady=2)
+        scroll_log = Scrollbar(f_ts_log)  # 滚动条
+        scroll_log.pack(side=RIGHT, fill=Y)
+        self.t_log = Text(f_ts_log, height=8, width=96)
+        self.t_log.pack(side=LEFT, fill=Y)
+        scroll_log.config(command=self.t_log.yview)
+        self.t_log.config(yscrollcommand=scroll_log.set)
+        
+        Label(f_log, text=Authorship, width=96, anchor=E).grid(row=1, column=1)
+        
 
     def dummy_func(self):
         print('Dummy function running.')
         
+    def get_time(self):
+        timeStamp = time.time()  # 1381419600
+        timeArray = time.localtime(timeStamp)
+        otherStyleTime = time.strftime("%Y%m%d_%H%M%S", timeArray)
+        return otherStyleTime  # 20131010_234000
+    
     def send_msg(self):
         input = self.v_console_input.get().strip()
         if input != '':
@@ -142,8 +149,12 @@ class App:
     
     def save_msg(self):
         console_content = self.t_console.get(1.0, 'end').strip()
-        console_filename = "Console_a.log"
-        with open('', 'w')console_content)
+        console_filename = "logs/Console_%s.log" % self.get_time()
+        os.system("if not exist logs mkdir logs")
+        with open(console_filename, 'w') as f:
+            f.writelines(console_content)
+            f.close()
+        self.t_log.insert('end', 'Consoles saved as: ' + console_filename + '\n')
 
 
     # 改变entry是否处于活动状态，注意顺序：先检查sfx再检查a2l
@@ -296,7 +307,7 @@ root.title('Raspberrypi Remote Diagnostics - CAN FD')  # 设置窗口标题
 root.option_add("*Font", ('Arial', 11))  # 设置全局字体，这样就不用每个控件单独指定字体
 
 w = 960
-h = 720
+h = 640
 
 # 定义函数：令窗口居中
 def center_window(w=300, h=200):
