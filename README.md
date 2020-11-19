@@ -1,1 +1,1 @@
-# rpi_kernel
+# Remote Diagnostics Python GUI for Raspberrypi
