@@ -150,7 +150,7 @@ class App:
     def save_msg(self):
         console_content = self.t_console.get(1.0, 'end').strip()
         console_filename = "logs/Console_%s.log" % self.get_time()
-        os.system("if not exist logs mkdir logs")
+        # os.system("if not exist logs mkdir logs")
         with open(console_filename, 'w') as f:
             f.writelines(console_content)
             f.close()
