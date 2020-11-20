@@ -1,2 +1,3 @@
-/logs/
-/cfg/
+logs/*.log
+cfg/*.ini
+
