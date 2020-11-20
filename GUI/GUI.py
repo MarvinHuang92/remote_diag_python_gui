@@ -1,4 +1,4 @@
-# -*- coding:UTF-8 -*-
+# -*- coding: UTF-8 -*-
 
 import os, shutil, time, datetime
 from tkinter import *
