@@ -4,11 +4,34 @@ import os, shutil, time, datetime
 from tkinter import *
 from tkinter import ttk, filedialog  #, dialog
 import threading
-import queue
+# import queue
+
+import sys
+sys.path.append('..')
+from test_scripts import sendAndReceive as sr
 
 config_path = 'cfg/default.ini'
 config_dir = 'cfg/'
 Authorship = 'Authors: Zhang Di, Huang Marvin, Wang Jian, Wei Haixia, HM Shashikumar from CC-DA/EDB2-CN'
+
+threading.TIMEOUT_MAX = 10  # 设置threading全局超时时间。
+
+class MyThread(threading.Thread):
+    def __init__(self, func, name, args=()):
+        super(MyThread, self).__init__()
+        self.func = func
+        self.name = name
+        self.args = args
+ 
+    def run(self):
+        self.result = self.func(*self.args)
+ 
+    def get_result(self):
+        try:
+            return self.result  # 如果子线程不使用join方法，此处可能会报没有self.result的错误
+        except Exception as e:
+            print(e)
+            return None
 
 '''
 # 生成时间戳方法
@@ -206,7 +229,7 @@ class App:
         os.system(cmd_online_1)
         os.system(cmd_online_2)
         os.system(cmd_online_3)
-        os.system(cmd_online_3)
+        os.system(cmd_online_4)
         self.new_print(cmd_online_1)
         self.new_print(cmd_online_2)
         self.new_print(cmd_online_3)
@@ -233,8 +256,14 @@ class App:
             # 'insert'参数表示插入光标当前位置
             # self.t_console.insert('insert', "Text\n")
             # 'end'参数表示始终插入末尾
-            self.t_console.insert('end', input + '\n')
+            self.t_console.insert('end', 'Tx: ' + input + '\n')
             self.t_console.yview_moveto(1)  # 滚动条移动至最下
+            
+            T_send = MyThread(func=sr.main_return, name='sending_msg', args=(input, ))
+            T_send.start()
+            T_send.join()
+            res = T_send.get_result()
+            print(res)
     
     def console_clean(self):
         self.t_console.delete(1.0, 'end')
@@ -326,7 +355,8 @@ class App:
         self.v_measure_switch.set(True)
         self.v_trace_switch.set(True)
         
-        self.show()
+        T_start = threading.Thread(target=self.__show_trace, args=('msg.', 0.02))
+        T_start.start()
         
     def stop_trace(self):
         self.new_print('* Stop Receiving Messages...')
@@ -336,22 +366,20 @@ class App:
         self.v_trace_switch.set(not self.v_trace_switch.get())
         
         
-    # 主函数
-    def main(self, msg, interval=0):
+    # 主要函数，在trace中显示报文
+    def __show_trace(self, msg, interval=0):
+        T_receive = MyThread(func=sr.main_return, name='sending_msg', args=('121212', ))
+        T_receive.start()
+        T_receive.join()
         while self.v_measure_switch.get():
-            # 在trace中显示报文
             if self.v_trace_switch.get():
+                msg = T_receive.get_result()
                 self.t_trace.insert('end', msg + '\n')
                 self.t_trace.yview_moveto(1)  # 滚动条移动至最下
             if interval:
                 time.sleep(interval)
-    
-    def __show(self):
-        self.main('msg.', 0.02)
+        
  
-    def show(self):
-        T = threading.Thread(target=self.__show, args=())
-        T.start()
         
 
 

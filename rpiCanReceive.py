@@ -1,8 +1,7 @@
 # -*- coding: UTF-8 -*-
 
-import can, re, time
-#import re, time
-#import msg_generator as mg 
+# import os, can, re, time
+import os, re, time
 
 # Example Format:
 # Timestamp: 1605943324.306903        ID: 0112    S                DLC:  8    5e 00 00 00 40 12 1c 10     Channel: can1
@@ -24,9 +23,28 @@ EXTRA_FRAMES = 0
 PRINTED_LINES = 0
 
 bustype = 'socketcan_native'
+cfg_path = './GUI/cfg/default.ini'
+
+# Default Value
 channel = 'can1'
 Diag_msg_send_id = 0x7A5
 Diag_msg_receive_id = 0x7AD
+
+# Read config from config file
+if os.path.exists(cfg_path):
+    print('Read Config from INI file.')
+    with open(cfg_path) as f:
+        cfg_contents = f.readlines()
+        f.close()
+    channel = cfg_contents[2].strip()
+    Diag_msg_send_id = int(cfg_contents[0].strip()[2:5], 16)
+    Diag_msg_receive_id = int(cfg_contents[1].strip()[2:5], 16)
+
+print('Channel: \t' + channel)
+print('Diag TxMsgID: \t%x' % Diag_msg_send_id)
+print('Diag RxMsgID: \t%x' % Diag_msg_receive_id)
+time.sleep(2)
+
 bus = can.interface.Bus(channel=channel, bustype=bustype, fd = True)
 
 def send_uds_msg(data):
