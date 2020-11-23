@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
-
+import json
 import os, can, re, time
-#import os, re, time
+#import re, time
 
 # Example Format:
 # Timestamp: 1605943324.306903        ID: 0112    S                DLC:  8    5e 00 00 00 40 12 1c 10     Channel: can1
@@ -47,12 +47,59 @@ time.sleep(2)
 
 bus = can.interface.Bus(channel=channel, bustype=bustype, fd = True)
 
+path = r'/home/pi/Downloads/FAW_C105_ADAS_Network_CANDBC_V1.2forbosch_forV1.6_dDASY.json'
+
+def signal_construct(signalname ,start_bit, signal_length, data_bin_frame):
+    signal_value = []
+    for i in range(len(signalname)):
+        signal_value_str = data_bin_frame[start_bit[i] : start_bit[i] + signal_length[i]]
+        #print('signal_value_str',signal_value_str)
+        signal_value_int = int(signal_value_str, 2)
+        #print('signal_value_int',signal_value_int)
+        signal_value.append(signal_value_int)
+    print('signal_value', signal_value)
+    return(signal_value)
+        
+def canmatrix_parser(json_file):
+    with open(json_file, 'rb') as file:
+        bin_obj = file.read()
+        dic_obj = json.loads(bin_obj.decode('utf-8'))
+        signal_name = []
+        signal_lengh = []
+        signal_start_bit = []
+        for item in dic_obj['messages']:
+            if item['id'] == 274:
+                for signals in item['signals']:
+                    signal_name.append(signals['name'])
+                    signal_lengh.append(signals['bit_length'])
+                    signal_start_bit.append(signals['start_bit'])
+        return signal_name, signal_start_bit, signal_lengh
+        
+
+def data_parser(data_messages):
+    data_str_combined = ''
+    data_splited = data_messages.split()
+    for data_byte in data_splited:
+        data_bin = bin(int(data_byte, 16))
+        raw_str = str(data_bin).lstrip('0b')
+        str_len = len(raw_str)
+        lacked_len = 8-str_len
+        filled_str = '0'*(lacked_len) + raw_str
+        #print(filled_str)
+        #print(int(filled_str, 2))
+        data_str_combined = filled_str + data_str_combined
+#    print(data_str_combined)
+    return data_str_combined
+
 def send_uds_msg(data):
     msg = can.Message(arbitration_id=Diag_msg_send_id, dlc=8, data=data, is_fd = False, extended_id=False)
     bus.send(msg)
 
 def format_msg(message, type='default'):
     global INIT_TIME, MULTI_DATA, MULTI_FRAME, DLC_MULTI, EXTRA_FRAMES, PRINTED_LINES
+    signalname , singnal_start_bit, signal_length = canmatrix_parser(path)
+    print('signalname', signalname)
+    print('signal_length', signal_length)
     raw_data = str(message)
 #    print(raw_data)
     result = re.search(PATTERN, raw_data)
@@ -103,8 +150,13 @@ def format_msg(message, type='default'):
                 channel_str = result.group(4).strip()
                 # skip printing the UDS session-keep msg
                 if not data_output[0:5] == '02 7e':
-                    print('%6.4f\t%s\t%s\t%s\t\t\t%s' % (timestamp, id_str, dlc_output, data_output, channel_str))
-                    PRINTED_LINES += 1
+                    if id_str == '112':
+                        #print('%6.4f\t%s\t%s\t%s\t\t\t%s' % (timestamp, id_str, dlc_output, data_output, channel_str))
+                        data_str = data_parser(data_output)
+                        signal_value_list = signal_construct(signalname , singnal_start_bit, signal_length, data_str)
+                        print('signal value list:',signal_value_list)
+                        
+                    #print(data_str)
 
         elif type == 'timestamp':
             timestamp = result.group(1).strip()
@@ -140,8 +192,8 @@ if __name__ == "__main__":
         if message is None:
             print('Timeout occurred, no message.')
             PRINTED_LINES += 1
-    #    else:
-        elif message.arbitration_id == Diag_msg_receive_id:
+        else:
+#        elif message.arbitration_id == Diag_msg_receive_id:
             format_msg(message)
             
         # send msg to keep in non-default session

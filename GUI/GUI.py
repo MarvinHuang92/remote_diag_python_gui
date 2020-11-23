@@ -9,6 +9,7 @@ import threading
 import sys
 sys.path.append('..')
 from test_scripts import sendAndReceive as sr
+import rpiCanReceiveAll as cra
 
 config_path = 'cfg/default.ini'
 config_dir = 'cfg/'
@@ -355,7 +356,7 @@ class App:
         self.v_measure_switch.set(True)
         self.v_trace_switch.set(True)
         
-        T_start = threading.Thread(target=self.__show_trace, args=('msg.', 0.02))
+        T_start = threading.Thread(target=self.__show_trace, args=())
         T_start.start()
         
     def stop_trace(self):
@@ -367,8 +368,11 @@ class App:
         
         
     # 主要函数，在trace中显示报文
-    def __show_trace(self, msg, interval=0):
-        T_receive = MyThread(func=sr.main_return, name='sending_msg', args=('121212', ))
+    def __show_trace(self):
+#        T_receive0 = MyThread(func=cra.main, name='receiving_msg', args=())
+#        T_receive0.start()
+#        T_receive0.join()
+        T_receive = MyThread(func=cra.gui_called, name='receiving_msg', args=())
         T_receive.start()
         T_receive.join()
         while self.v_measure_switch.get():
@@ -376,8 +380,8 @@ class App:
                 msg = T_receive.get_result()
                 self.t_trace.insert('end', msg + '\n')
                 self.t_trace.yview_moveto(1)  # 滚动条移动至最下
-            if interval:
-                time.sleep(interval)
+#            if interval:
+#                time.sleep(0.01)
         
  
         
