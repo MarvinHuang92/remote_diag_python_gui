@@ -122,7 +122,7 @@ if __name__ == "__main__":
             print('Timeout occurred, no message.')
             PRINTED_LINES += 1
     #    else:
-        elif message.arbitration_id == 0x7AD:
+        elif message.arbitration_id == 0x7A5:
             format_msg(message)
             
         # send msg to keep in non-default session

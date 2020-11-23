@@ -101,8 +101,8 @@ class App:
         Label(f_panel, text='-Control Panel-', width=15).grid(row=0, column=0, padx=5, pady=10)
         Button(f_panel, text='Device Online', width=15, command=self.device_online).grid(row=1, column=0, padx=5, pady=5)
         Button(f_panel, text='Device Offline', width=15, command=self.device_offline).grid(row=1, column=1, padx=5, pady=5)
-        Button(f_panel, text='START ', width=15, height=3, command=self.start_trace).grid(row=11, column=0, padx=5, pady=5)
-        Button(f_panel, text=' STOP ', width=15, height=3, command=self.stop_trace).grid(row=11, column=1, padx=5, pady=5)
+        Button(f_panel, text='START ', width=15, height=3, command=self.start_trace).grid(row=12, column=0, padx=5, pady=5)
+        Button(f_panel, text=' STOP ', width=15, height=3, command=self.stop_trace).grid(row=12, column=1, padx=5, pady=5)
         
         Label(f_panel, text='       Channel:', width=15).grid(row=3, column=0, padx=5, pady=5)
         Label(f_panel, text='Diag Msg ID Tx:', width=15).grid(row=4, column=0, padx=5, pady=5)
@@ -119,6 +119,7 @@ class App:
         Label(f_panel, text='               ', width=15).grid(row=8, column=0, padx=10, pady=5)
         Label(f_panel, text='               ', width=15).grid(row=9, column=0, padx=10, pady=5)
         Label(f_panel, text='               ', width=15).grid(row=10, column=0, padx=10, pady=5)
+        Label(f_panel, text='               ', width=15).grid(row=11, column=0, padx=10, pady=5)
         
         # save config button
         Button(f_panel, text='Save Config', width=15, command=self.saveConfig).grid(row=6, column=0, padx=5, pady=5)
@@ -146,9 +147,9 @@ class App:
         Label(f_console_1, text='Input:', width=42, anchor=W).grid(row=2, column=0, padx=5, pady=5)
         Entry(f_console_1, width=42, textvariable=self.v_console_input).grid(row=3, column=0, padx=10, pady=3)
         
-        Button(f_console_2, text='Send', width=15, command=self.console_send).grid(row=0, column=0)
+        Button(f_console_2, text='Send', width=13, command=self.console_send).grid(row=0, column=0)
         Label(f_console_2, text='', width=9).grid(row=0, column=1)
-        Button(f_console_2, text='Clean', width=15, command=self.console_clean).grid(row=0, column=2)
+        Button(f_console_2, text='Clean', width=13, command=self.console_clean).grid(row=0, column=2)
 
         
         # Trace Frame
@@ -163,9 +164,9 @@ class App:
         scroll_trace.config(command=self.t_trace.yview)
         self.t_trace.config(yscrollcommand=scroll_trace.set)
 
-        Button(f_trace_2, text='Pause', width=15, command=self.pause_trace).grid(row=0, column=1)
-        Button(f_trace_2, text='Clean', width=15, command=self.trace_clean).grid(row=0, column=2, padx=30, pady=2)
-        Button(f_trace_2, text='Save', width=15, command=self.trace_save).grid(row=0, column=3)
+        Button(f_trace_2, text='Pause', width=13, command=self.pause_trace).grid(row=0, column=1)
+        Button(f_trace_2, text='Clean', width=13, command=self.trace_clean).grid(row=0, column=2, padx=30, pady=2)
+        Button(f_trace_2, text='Save', width=13, command=self.trace_save).grid(row=0, column=3)
 
 
         # Log Frame
@@ -173,7 +174,7 @@ class App:
         # self.canvas.grid(row=0, column=0)
         # image = PhotoImage(file='./img/RPI.ppm')
         # self.canvas.create_image(50,50,anchor=CENTER,image=image)
-        Label(f_log, text='Log: ', width=39, anchor=E).grid(row=0, column=1)
+        Label(f_log, text='Log: ', width=42, anchor=E).grid(row=0, column=1)
         
         f_ts_log = Frame(f_log)
         f_ts_log.grid(row=0, column=2, padx=3, pady=2)
@@ -357,10 +358,14 @@ class App:
 
 root = Tk()  # 创建Tk对象，Tk代表窗口
 root.title('Raspberrypi Remote Diagnostics')  # 设置窗口标题
-root.option_add("*Font", ('Courier10 BT', 10))  # 设置全局字体，这样就不用每个控件单独指定字体
+# for Windows 10
+#root.option_add("*Font", ('Courier10 BT', 10))  # 设置全局字体，这样就不用每个控件单独指定字体
+# for linux
+root.option_add("*Font", ('Monospace', 10))  # 设置全局字体，这样就不用每个控件单独指定字体
 
-w = 1200
-h = 630
+
+w = 1240
+h = 700
 
 # 定义函数：令窗口居中
 def center_window(w=300, h=200):

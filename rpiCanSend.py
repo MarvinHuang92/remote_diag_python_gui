@@ -7,7 +7,7 @@ bustype = 'socketcan_native'
 channel = 'can1'
 Diag_msg_id = 0x7A5
 
-import cantestreceive as cr
+#import cantestreceive as cr
 
 def send_msg(data_str):
     valid_input = True
