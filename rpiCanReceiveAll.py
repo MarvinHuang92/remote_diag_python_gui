@@ -122,8 +122,8 @@ if __name__ == "__main__":
         if message is None:
             print('Timeout occurred, no message.')
             PRINTED_LINES += 1
-    #    else:
-        elif message.arbitration_id == Diag_msg_receive_id:
+        else:
+#        elif message.arbitration_id == Diag_msg_receive_id:
             format_msg(message)
             
         # send msg to keep in non-default session
