@@ -206,7 +206,7 @@ class App:
         os.system(cmd_online_1)
         os.system(cmd_online_2)
         os.system(cmd_online_3)
-        os.system(cmd_online_3)
+        os.system(cmd_online_4)
         self.new_print(cmd_online_1)
         self.new_print(cmd_online_2)
         self.new_print(cmd_online_3)
